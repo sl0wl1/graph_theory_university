@@ -6,8 +6,7 @@ dependencies:
 - pandas
 - matplotlib
 - seaborn 
-- pip:
-  - docx
-  - gooey
-  - matplotlib==2.0.0  
-  - https://github.com/TieuLongPhan/SynUtils.git
+- pip: 
+  - git+https://github.com/TieuLongPhan/SynUtils.git
+  # - pip install synutility[all]
+  # - pip install synutility
