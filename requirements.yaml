@@ -1,0 +1,13 @@
+name: graph_theory
+dependencies:
+- python>=3.11
+- pip
+- numpy
+- pandas
+- matplotlib
+- seaborn 
+- pip:
+  - docx
+  - gooey
+  - matplotlib==2.0.0  
+  - https://github.com/TieuLongPhan/SynUtils.git
