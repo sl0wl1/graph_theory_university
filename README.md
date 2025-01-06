@@ -1,5 +1,9 @@
-# grapth_theory_university
+# graph_theory_university
 
+## Repository for graph theory | practical course
 
+- Create conda environment
 
-## repository for grapth theory | practical course
+```bash
+conda env create --file requirements.yaml
+````

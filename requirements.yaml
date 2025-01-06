@@ -6,6 +6,7 @@ dependencies:
 - pandas
 - matplotlib
 - seaborn 
+- pytest
 - pip: 
   - git+https://github.com/TieuLongPhan/SynUtils.git
   # - pip install synutility[all]
