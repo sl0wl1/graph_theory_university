@@ -1,9 +1,13 @@
-from src.clustering import cluster_reactions
+from src.clustering import cluster_reactions, group_after_invariant, cluster_after_invariant_grouping
 from synutility.SynIO.data_type import load_from_pickle
 
 # Load first 1000 entries
-data = load_from_pickle("data/ITS_graphs.pkl.gz")[:1000]
+data = load_from_pickle("data/ITS_graphs.pkl.gz")#[:1000]
 
-cluster_dict = cluster_reactions(data)
+# cluster_dict = cluster_reactions(data)
 
-print(cluster_dict.keys())
+invariant_dict = group_after_invariant(data, invariant="vertex_degrees")
+# cluster_after_invariant_grouping_dict = cluster_after_invariant_grouping(invariant_dict)
+
+for key, values in invariant_dict.items():
+    print(len(values))
