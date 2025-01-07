@@ -2,7 +2,7 @@ from typing import Dict, List, Any
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
 
-from src.rc_extract import get_rc
+from src.rc_extract import get_rc_updated
 
 def cluster_reactions(list_reactions: List[Dict[Any, Any]]) -> Dict[str, Any]:
     """Simple function for clusterting chemical reactions
@@ -28,7 +28,7 @@ def cluster_reactions(list_reactions: List[Dict[Any, Any]]) -> Dict[str, Any]:
 
         for idx, reaction in enumerate(list_reactions):
             
-            reaction_centre = get_rc(reaction["ITS"])
+            reaction_centre = get_rc_updated(reaction["ITS"])
             
             # Create first entry in dict. For the first reaction there is nothing to compare 
             if idx == 0:
@@ -40,7 +40,7 @@ def cluster_reactions(list_reactions: List[Dict[Any, Any]]) -> Dict[str, Any]:
                 # Checks if isomorphs of the reaction centre already exist in a cluster
                 for key, value in cluster_dict.items():
                     
-                    cluster_centre = get_rc(value[0]["ITS"])
+                    cluster_centre = get_rc_updated(value[0]["ITS"])
                     
                     #TODO Maybe this could be optimized... and I do not know if it is correct -.-'
                     # Only need to be checked once
@@ -85,7 +85,7 @@ def group_after_invariant(list_reactions: List[Dict[Any, Any]], invariant: str) 
 
         for idx, reaction in enumerate(list_reactions):
             
-            reaction_centre = get_rc(reaction["ITS"])
+            reaction_centre = get_rc_updated(reaction["ITS"])
             
             # Create first entry in dict. For the first reaction there is nothing to compare 
             if idx == 0:
@@ -97,7 +97,7 @@ def group_after_invariant(list_reactions: List[Dict[Any, Any]], invariant: str) 
                 # Checks if invariants of the reaction centre already exist in a group
                 for key, value in group_dict.items():
                     
-                    group_centre = get_rc(value[0]["ITS"])
+                    group_centre = get_rc_updated(value[0]["ITS"])
                     
                     #TODO Maybe this could be optimized... and I do not know if it is correct -.-'
                     # Only need to be checked once
@@ -146,6 +146,8 @@ def cluster_after_invariant_grouping(group_dict: Dict[str, Any]) -> Dict[str, Di
         cluster_after_group_dict[key] = temporary_cluster_dict
             
     return cluster_after_group_dict
+
+
             
             
         
