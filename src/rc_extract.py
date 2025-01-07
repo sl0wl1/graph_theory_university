@@ -51,8 +51,11 @@ def get_rc_do_not_use(G: nx.Graph) -> nx.Graph:
     rc_indices = find_unequal_order_edges(G)
     return extract_subgraph(G, rc_indices)
 
+
 def get_rc_updated(graph):
-    
-    reaction_center = nx.edge_subgraph(graph, [(e[0], e[1]) for e in graph.edges(data=True) if e[2]["standard_order"]!=0])
-    
+    reaction_center = nx.edge_subgraph(
+        graph,
+        [(e[0], e[1]) for e in graph.edges(data=True) if e[2]["standard_order"] != 0],
+    )
+
     return reaction_center

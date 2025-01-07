@@ -1,8 +1,8 @@
-from src.clustering import cluster_reactions, group_after_invariant, cluster_after_invariant_grouping
+from src.clustering import group_after_invariant
 from synutility.SynIO.data_type import load_from_pickle
 
 # Load first 1000 entries
-data = load_from_pickle("data/ITS_graphs.pkl.gz")#[:1000]
+data = load_from_pickle("data/ITS_graphs.pkl.gz")  # [:1000]
 
 # cluster_dict = cluster_reactions(data)
 
