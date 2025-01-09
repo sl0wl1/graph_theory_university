@@ -41,16 +41,3 @@ def algebraic_connectivity_invariant(
     reaction_centre_connectivity = compute_algebraic_connectivity(reaction_centre)
 
     return group_centre_connectivity, reaction_centre_connectivity
-
-
-
-
-
-
-
-
-
-
-
-
-
