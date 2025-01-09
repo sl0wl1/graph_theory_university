@@ -8,6 +8,7 @@ from src.invariants import (
     edge_count_invariant,
     vertex_degree_invariant,
     vertex_count_invariant,
+    algebraic_connectivity_invariant
 )
 
 
@@ -145,7 +146,11 @@ def group_after_invariant(
 
                         # TODO implement
                         case "algebraic_connectivity":
-                            pass
+                            group_centre_invariant, reaction_centre_invariant = ( # invariant doesn't exactly fit here (should be connectivity)
+                                algebraic_connectivity_invariant(
+                                    group_centre=group_centre,
+                                    reaction_centre=reaction_centre)
+                                )
 
                         # TODO implement
                         case "rank":
