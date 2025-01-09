@@ -10,6 +10,7 @@ from src.invariants import (
     vertex_count_invariant,
     algebraic_connectivity_invariant
 )
+from src.add_combined_node_attributes import combine_charge_element_to_node
 
 
 def cluster_reactions(list_reactions: List[Dict[Any, Any]]) -> Dict[str, Any]:
@@ -190,3 +191,72 @@ def cluster_after_invariant_grouping(
         cluster_after_group_dict[key] = temporary_cluster_dict
 
     return cluster_after_group_dict
+
+
+def cluster_weisfeiler_lehman_nx(
+    list_reactions: List[Dict[Any, Any]],
+    iterations: int = 3,
+    use_edge_node_attr: bool = False,
+) -> Dict[str, Any]:
+    """Simple function for clusterting chemical reactions using Weisfeiler-Lehman from NetworkX
+
+    Args:
+        list_reactions (List[Dict[Any, Any]]): A list of reactions
+        iterations (int): Number of neighbor aggregations to perform. Defaults to 3
+        use_edge_node_attr (bool): Set to True for using edge and node attributes (order, charge, element). Defaults to False.
+
+    Returns:
+        Dict[str, Any]: Returns a dict. Keys are the number of the cluster. Values are the isomorphic reactions.
+    """
+
+    # Create an empty dict for storing reaction clusters and cluster counter for key naming
+    cluster_dict = {}
+    cluster_counter = 0
+
+    # Check if the list of reactions is empty
+    if list_reactions:
+        for idx, reaction in enumerate(list_reactions):
+            reaction_centre = get_rc_updated(reaction["ITS"])
+
+            if use_edge_node_attr:
+                combine_charge_element_to_node(reaction_centre)
+                reaction_centre_hash = nx.weisfeiler_lehman_graph_hash(
+                    reaction_centre,
+                    iterations=iterations,
+                    edge_attr="order",
+                    node_attr="element_charge",
+                )
+                reaction_centre.graph["reaction_centre_wl_hash"] = reaction_centre_hash
+
+            else:
+                reaction_centre_hash = nx.weisfeiler_lehman_graph_hash(
+                    reaction_centre, iterations=iterations
+                )
+                reaction_centre.graph["reaction_centre_wl_hash"] = reaction_centre_hash
+
+            # Create first entry in dict. For the first reaction there is nothing to compare
+            if idx == 0:
+                cluster_dict[f"cluster_{cluster_counter}"] = [list_reactions[idx]]
+                cluster_counter += 1
+
+            else:
+                # Checks if isomorphs of the reaction centre already exist in a cluster
+                for key, value in cluster_dict.items():
+                    cluster_centre = get_rc_updated(value[0]["ITS"])
+
+                    # TODO Maybe this could be optimized... and I do not know if it is correct -.-'
+                    # Only need to be checked once
+                    if (
+                        cluster_centre.graph["reaction_centre_wl_hash"]
+                        == reaction_centre.graph["reaction_centre_wl_hash"]
+                    ):
+                        value.append(reaction)
+                        cluster_dict[key] = value
+                        break
+
+                else:
+                    # If no isomorphic reaction centre can be found, create a new entry (cluster)
+                    cluster_dict[f"cluster_{cluster_counter}"] = [reaction]
+                    cluster_counter += 1
+
+    return cluster_dict
