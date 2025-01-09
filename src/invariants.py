@@ -1,6 +1,6 @@
 from typing import List, Tuple
 import networkx as nx
-from networkx import algebraic_connectivityYESS
+from networkx import algebraic_connectivity
 
 
 def vertex_degree_invariant(
