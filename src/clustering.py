@@ -4,7 +4,11 @@ import networkx.algorithms.isomorphism as iso
 
 
 from src.rc_extract import get_rc_updated
-from src.invariants import vertex_degree_invariant
+from src.invariants import (
+    edge_count_invariant,
+    vertex_degree_invariant,
+    vertex_count_invariant,
+)
 
 
 def cluster_reactions(list_reactions: List[Dict[Any, Any]]) -> Dict[str, Any]:
@@ -80,7 +84,7 @@ def group_after_invariant(
     """
 
     invariants = [
-        "vertex_count",
+        "vertex_counts",
         "edge_counts",
         "vertex_degrees",
         "algebraic_connectivity",
@@ -123,11 +127,21 @@ def group_after_invariant(
 
                         # TODO Implement
                         case "vertex_counts":
-                            pass
+                            group_centre_invariant, reaction_centre_invariant = (
+                                vertex_count_invariant(
+                                    group_centre=group_centre,
+                                    reaction_centre=reaction_centre,
+                                )
+                            )
 
                         # TODO implement
                         case "edge_counts":
-                            pass
+                            group_centre_invariant, reaction_centre_invariant = (
+                                edge_count_invariant(
+                                    group_centre=group_centre,
+                                    reaction_centre=reaction_centre,
+                                )
+                            )
 
                         # TODO implement
                         case "algebraic_connectivity":

@@ -14,3 +14,17 @@ def test_sum_invariants_vertex_degrees():
     result = group_after_invariant(data, invariant="vertex_degrees")
     result_flattened = [entry for entries in result.values() for entry in entries]
     assert len(result_flattened) == len(data)
+
+
+def test_sum_invariants_vertex_count():
+    data = load_from_pickle("data/ITS_graphs.pkl.gz")[:1000]
+    result = group_after_invariant(data, invariant="vertex_counts")
+    result_flattened = [entry for entries in result.values() for entry in entries]
+    assert len(result_flattened) == len(data)
+
+
+def test_sum_invariants_edge_count():
+    data = load_from_pickle("data/ITS_graphs.pkl.gz")[:1000]
+    result = group_after_invariant(data, invariant="edge_counts")
+    result_flattened = [entry for entries in result.values() for entry in entries]
+    assert len(result_flattened) == len(data)
