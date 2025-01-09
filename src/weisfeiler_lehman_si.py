@@ -93,7 +93,6 @@ def weisfeiler_lehman_isomorhpic_test(
     temporary_histogram_2: Dict[int, int] = {}
 
     for i in range(len(graph_1.nodes)):
-        print(i)
         if i > 1:
             last_histogram_1_values = list(temporary_histogram_1.values())
             last_histogram_2_values = list(temporary_histogram_2.values())
@@ -107,8 +106,6 @@ def weisfeiler_lehman_isomorhpic_test(
 
         temporary_histogram_1_values = list(temporary_histogram_1.values())
         temporary_histogram_2_values = list(temporary_histogram_2.values())
-        print(temporary_compressed_labels_1)
-        print(temporary_compressed_labels_2)
         # Check if the ordered compressed label multiset is the same. If not -> not isomorphic
         if temporary_compressed_labels_1 != temporary_compressed_labels_2:
             return False
