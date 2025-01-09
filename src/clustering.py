@@ -8,6 +8,7 @@ from src.invariants import (
     edge_count_invariant,
     vertex_degree_invariant,
     vertex_count_invariant,
+    algebraic_connectivity_invariant
 )
 
 
