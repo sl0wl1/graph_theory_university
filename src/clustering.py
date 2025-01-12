@@ -8,7 +8,7 @@ from src.invariants import (
     edge_count_invariant,
     vertex_degree_invariant,
     vertex_count_invariant,
-    algebraic_connectivity_invariant
+    algebraic_connectivity_invariant,
 )
 from src.add_combined_node_attributes import combine_charge_element_to_node
 
@@ -35,7 +35,9 @@ def cluster_reactions(list_reactions: List[Dict[Any, Any]]) -> Dict[str, Any]:
     # Check if the list of reactions is empty
     if list_reactions:
         for idx, reaction in enumerate(list_reactions):
-            reaction_centre = get_rc_updated(reaction["ITS"])
+            reaction_centre = reaction[
+                "reaction_centre"
+            ]  # change to expect get_rc_updated to have already run
 
             # Create first entry in dict. For the first reaction there is nothing to compare
             if idx == 0:
@@ -103,7 +105,7 @@ def group_after_invariant(
     # Check if the list of reactions is empty
     if list_reactions:
         for idx, reaction in enumerate(list_reactions):
-            reaction_centre = get_rc_updated(reaction["ITS"])
+            reaction_centre = reaction["reaction_centre"]
 
             # Create first entry in dict. For the first reaction there is nothing to compare
             if idx == 0:
@@ -147,11 +149,15 @@ def group_after_invariant(
 
                         # TODO implement
                         case "algebraic_connectivity":
-                            group_centre_invariant, reaction_centre_invariant = ( # invariant doesn't exactly fit here (should be connectivity)
+                            (
+                                group_centre_invariant,
+                                reaction_centre_invariant,
+                            ) = (  # invariant doesn't exactly fit here (should be connectivity)
                                 algebraic_connectivity_invariant(
                                     group_centre=group_centre,
-                                    reaction_centre=reaction_centre)
+                                    reaction_centre=reaction_centre,
                                 )
+                            )
 
                         # TODO implement
                         case "rank":
@@ -180,6 +186,7 @@ def cluster_after_invariant_grouping(
 
     Returns:
         Dict[Dict[str, Any]]: Returns a dicts in a dict. Outer dicts keys are the groups number. In this group, the keys of the inner dicts are the cluster numbers.
+        # TODO: we should consider unifying the return type of the clustering. IMO we should remove the outer dict and have the flattened version of the inner dicts
     """
     cluster_after_group_dict: Dict[str, Dict[str, Any]] = {}
 
