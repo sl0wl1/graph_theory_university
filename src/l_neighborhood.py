@@ -13,7 +13,7 @@ def find_l_neighborhood_of_rc(
         reaction_centre (nx.Graph): Reaction centre (subgraph) of your ITS graph (graph).
         l_neighborhood (int) = Defines the size of your neighborhood. (Defaults to 0)
     Returns:
-        nx.Graph: A subgraph of your graph with the size of l_neighborhood from your reaction_centre.
+        nx.Graph: A subgraph of your graph with the size of l_neighborhood starting from your reaction_centre.
     """
 
     edge_set = [edge for edge in reaction_centre.edges]
@@ -26,7 +26,7 @@ def find_l_neighborhood_of_rc(
     for node in reaction_centre.nodes:
         for n_node in graph.neighbors(node):
             edge_set.append((node, n_node))
-            new_reaction_centre = nx.edge_subgraph(G=graph, edges=(edge_set))
+            new_reaction_centre = nx.edge_subgraph(G=graph, edges=edge_set)
     return find_l_neighborhood_of_rc(
         graph=graph,
         reaction_centre=new_reaction_centre,
