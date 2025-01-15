@@ -1,7 +1,7 @@
 from typing import Dict, List, Any
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
-
+import numpy as np
 
 from src.rc_extract import get_rc_updated
 from src.invariants import (
@@ -156,6 +156,7 @@ def group_after_invariant(
                         # TODO check
                         case "rank":
                             group_centre_invariant = np.linalg.matrix_rank(group_centre)
+                            print(group_after_invariant)
                             reaction_centre_invariant = np.linalg.matrix_rank(reaction_centre)
 
                             #group_centre_invariant = np.linalg.eigvals(group_centre)
