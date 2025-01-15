@@ -25,22 +25,23 @@ def vertex_degree_invariant(
 
     return group_centre_invariant, reaction_centre_invariant
 
+
 def algebraic_connectivity_invariant(
     group_centre: nx.Graph, reaction_centre: nx.Graph
 ) -> Tuple[float, float]:
-
     def compute_algebraic_connectivity(graph: nx.Graph):
         try:
             return algebraic_connectivity(graph, normalized=True, tol=1e-6)
         except nx.NetworkXError:
-            return 0 # disconnected
-        except nx.NetworkXNotImplemented # when G is directed
-            return 0 # probably better to handle this differently 
+            return 0  # disconnected
+        except nx.NetworkXNotImplemented:  # when G is directed
+            return 0  # probably better to handle this differently
 
     group_centre_connectivity = compute_algebraic_connectivity(group_centre)
     reaction_centre_connectivity = compute_algebraic_connectivity(reaction_centre)
 
     return group_centre_connectivity, reaction_centre_connectivity
+
 
 def vertex_count_invariant(
     group_centre: nx.Graph, reaction_centre: nx.Graph

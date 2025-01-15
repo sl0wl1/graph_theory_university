@@ -8,7 +8,7 @@ from src.invariants import (
     edge_count_invariant,
     vertex_degree_invariant,
     vertex_count_invariant,
-    algebraic_connectivity_invariant
+    algebraic_connectivity_invariant,
 )
 from src.add_combined_node_attributes import combine_charge_element_to_node
 
@@ -147,11 +147,15 @@ def group_after_invariant(
 
                         # TODO implement
                         case "algebraic_connectivity":
-                            group_centre_invariant, reaction_centre_invariant = ( # invariant doesn't exactly fit here (should be connectivity)
+                            (
+                                group_centre_invariant,
+                                reaction_centre_invariant,
+                            ) = (  # invariant doesn't exactly fit here (should be connectivity)
                                 algebraic_connectivity_invariant(
                                     group_centre=group_centre,
-                                    reaction_centre=reaction_centre)
+                                    reaction_centre=reaction_centre,
                                 )
+                            )
 
                         # TODO implement
                         case "rank":
