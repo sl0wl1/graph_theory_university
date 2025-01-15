@@ -73,11 +73,12 @@ def cluster_by_isomorphism_test(list_reactions: List[Dict[Any, Any]]) -> Dict[st
 
     return cluster_dict
 
+
 # TODO: not yet implemented
 def cluster_by_weisfeiler_lehman_si(
     list_reactions: List[Dict[Any, Any]],
 ) -> Dict[str, Any]:
-   pass
+    pass
 
 
 def cluster_by_weisfeiler_lehman_nx(
@@ -192,7 +193,7 @@ def group_after_invariant(
             else:
                 # Checks if invariants of the reaction centre already exist in a group
                 for key, value in group_dict.items():
-                    group_centre = get_rc_updated(value[0]["ITS"])
+                    group_centre = value[0]["reaction_centre"]
 
                     match invariant:
                         case "vertex_degree":
@@ -272,7 +273,9 @@ def cluster_after_invariant_grouping(
             case "none":
                 temporary_cluster_dict = values
             case "isomorphism_test":
-                cluster_by_isomorphism_test(list_reactions=values)
+                temporary_cluster_dict = cluster_by_isomorphism_test(
+                    list_reactions=values
+                )
             case "weisfeiler_lehmann_nx":
                 temporary_cluster_dict = cluster_by_weisfeiler_lehman_nx(
                     list_reactions=values, **config.weisfeiler_lehman_params
@@ -281,9 +284,12 @@ def cluster_after_invariant_grouping(
                 temporary_cluster_dict = cluster_by_weisfeiler_lehman_si(
                     list_reactions=values
                 )
+            case _:
+                raise ValueError(f"Unknown algorithm: {config.algorithm}")
         cluster_after_group_dict[key] = temporary_cluster_dict
 
     return cluster_after_group_dict
+
 
 def cluster_without_invariant_grouping(
     list_reactions: List[Dict[Any, Any]],
@@ -308,6 +314,8 @@ def cluster_without_invariant_grouping(
                 list_reactions=list_reactions, **config.weisfeiler_lehman_params
             )
         case "weisfeiler_lehmann_si":
-            cluster_dict = cluster_by_weisfeiler_lehman_si(list_reactions=list_reactions)
+            cluster_dict = cluster_by_weisfeiler_lehman_si(
+                list_reactions=list_reactions
+            )
 
     return cluster_dict

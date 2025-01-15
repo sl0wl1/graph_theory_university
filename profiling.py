@@ -51,7 +51,7 @@ def all_configurations():
 
 
 def load_data() -> ReactionDataList:
-    data = load_from_pickle("data/ITS_graphs.pkl.gz")
+    data = load_from_pickle("data/ITS_graphs_reduced.pkl.gz")
     return data
 
 
@@ -70,6 +70,7 @@ def run_benchmarking():
 
     for config in configurations:
         if config.perform_benchmark():
+            print(f"Running benchmark for {config}")
             result = benchmark_configuration(config, refined_data)
             save_result(result)
 
@@ -96,27 +97,26 @@ def save_refined_data(reactions: ReactionDataList):
 def benchmark_configuration(
     config: Config, refined_data: ReactionDataList
 ) -> BenchmarkingResult:
+    
+    refined_data = copy.deepcopy(refined_data)
     pr = cProfile.Profile()
     pr.enable()
-    refined_data = copy.deepcopy(refined_data)
-
     cluster_result = run_clustering(config=config,refined_data=refined_data)
 
     pr.disable()
     pr.dump_stats(f"{config.invariant}_{config.algorithm}_profile.prof")
 
-    # Print profiling stats
-    s = io.StringIO()
-    ps = pstats.Stats(pr, stream=s).sort_stats("cumulative")
-    ps.print_stats()
-    print(s.getvalue())
-
-    return {
+    benchmark_result = {
         "clusters": cluster_result,
         "configuration": config,
-        "time": pr.total_tt,
+        "time": sum(stat.totaltime for stat in pr.getstats()),
         "cluster_count": len(cluster_result),
     }
+    
+    print(f"Config: {config}, Cluster Count: {benchmark_result['cluster_count']}, Time: {benchmark_result['time']}")
+    print("\n\n")
+    return benchmark_result
+
 
 
 def run_clustering(

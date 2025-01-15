@@ -32,7 +32,7 @@ def algebraic_connectivity_invariant(
 ) -> Tuple[float, float]:
     def compute_algebraic_connectivity(graph: nx.Graph):
         try:
-            return algebraic_connectivity(graph, normalized=True, tol=1e-6)
+            return algebraic_connectivity(graph)
         except nx.NetworkXError:
             return 0  # disconnected
         except nx.NetworkXNotImplemented:  # when G is directed
