@@ -9,6 +9,7 @@ from src.invariants import (
     vertex_degree_invariant,
     vertex_count_invariant,
     algebraic_connectivity_invariant,
+    rank_invariant,
 )
 from src.add_combined_node_attributes import combine_charge_element_to_node
 
@@ -159,9 +160,17 @@ def group_after_invariant(
                                 )
                             )
 
-                        # TODO implement
+                        # TODO check
                         case "rank":
-                            pass
+                            group_centre_invariant, reaction_centre_invariant = (
+                                rank_invariant(
+                                    group_centre=group_centre,
+                                    reaction_centre=reaction_centre,
+                                )
+                            )
+
+                            # group_centre_invariant = np.linalg.eigvals(group_centre)
+                            # reaction_centre_invariant = np.linalg.eigvals(reaction_centre)
 
                     if reaction_centre_invariant == group_centre_invariant:
                         value.append(reaction)
