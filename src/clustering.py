@@ -1,7 +1,7 @@
 from typing import Dict, List, Any
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
-
+import numpy as np
 
 from src.rc_extract import get_rc_updated
 from src.invariants import (
