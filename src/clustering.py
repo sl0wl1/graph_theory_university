@@ -8,7 +8,8 @@ from src.invariants import (
     edge_count_invariant,
     vertex_degree_invariant,
     vertex_count_invariant,
-    algebraic_connectivity_invariant
+    algebraic_connectivity_invariant,
+    rank_invariant,
 )
 from src.add_combined_node_attributes import combine_charge_element_to_node
 
@@ -147,19 +148,27 @@ def group_after_invariant(
 
                         # TODO implement
                         case "algebraic_connectivity":
-                            group_centre_invariant, reaction_centre_invariant = ( # invariant doesn't exactly fit here (should be connectivity)
+                            (
+                                group_centre_invariant,
+                                reaction_centre_invariant,
+                            ) = (  # invariant doesn't exactly fit here (should be connectivity)
                                 algebraic_connectivity_invariant(
                                     group_centre=group_centre,
-                                    reaction_centre=reaction_centre)
+                                    reaction_centre=reaction_centre,
                                 )
+                            )
 
                         # TODO check
                         case "rank":
-                            group_centre_invariant = np.linalg.matrix_rank(group_centre)
-                            reaction_centre_invariant = np.linalg.matrix_rank(reaction_centre)
+                            group_centre_invariant, reaction_centre_invariant = (
+                                rank_invariant(
+                                    group_centre=group_centre,
+                                    reaction_centre=reaction_centre,
+                                )
+                            )
 
-                            #group_centre_invariant = np.linalg.eigvals(group_centre)
-                            #reaction_centre_invariant = np.linalg.eigvals(reaction_centre)
+                            # group_centre_invariant = np.linalg.eigvals(group_centre)
+                            # reaction_centre_invariant = np.linalg.eigvals(reaction_centre)
 
                     if reaction_centre_invariant == group_centre_invariant:
                         value.append(reaction)

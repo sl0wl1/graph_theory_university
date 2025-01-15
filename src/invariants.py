@@ -1,6 +1,7 @@
 from typing import List, Tuple
 import networkx as nx
 from networkx import algebraic_connectivity
+import numpy as np
 
 
 def vertex_degree_invariant(
@@ -79,5 +80,27 @@ def edge_count_invariant(
     group_centre_invariant = [group_centre.number_of_edges()]
 
     reaction_centre_invariant = [reaction_centre.number_of_edges()]
+
+    return group_centre_invariant, reaction_centre_invariant
+
+
+def rank_invariant(
+    group_centre: nx.Graph, reaction_centre: nx.Graph
+) -> Tuple[List[int], List[int]]:
+    """Implementation for comparing ranks of two graphs (adjacency matrix), used for invariant comparison. Used in group_after_invariant
+
+    Args:
+
+        group_centre (nx.Graph): group centre from your already grouped reactions list
+        reaction_centre (nx.Graph): reaction centre from your reactions list
+
+    Returns:
+        group_centre_invariant, reaction_centre_invariant Tuple[List[int], List[int]]: edge count list of inputs
+    """
+    group_centre_invariant = int(np.linalg.matrix_rank(nx.to_numpy_array(group_centre)))
+
+    reaction_centre_invariant = int(
+        np.linalg.matrix_rank(nx.to_numpy_array(reaction_centre))
+    )
 
     return group_centre_invariant, reaction_centre_invariant
