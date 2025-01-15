@@ -1,6 +1,6 @@
 from typing import Any, Callable, Dict, Tuple
 import networkx as nx
-from rc_extract import get_rc_updated
+from src.rc_extract import get_rc_updated
 from collections import Counter
 
 
@@ -78,10 +78,10 @@ def weisfeiler_lehman_step(
     return tuple(list_updated_compressed_labels), histogram
 
 
-def weisfeiler_lehman_isomorhpic_test(
+def weisfeiler_lehman_isomorphic_test(
     graph_1: nx.Graph,
     graph_2: nx.Graph,
-    shared_hash_table,
+    shared_hash_table: SharedHashTable = SharedHashTable(),
     extract_reaction_center: bool = False,
     reset: bool = False,
 ) -> bool:
