@@ -22,11 +22,13 @@ def find_l_neighborhood_of_rc(
     if l_neighborhood <= 0:
         return reaction_centre
 
+    edge_set = [edge for edge in reaction_centre.edges]
     # recursive part
     for node in reaction_centre.nodes:
         for n_node in graph.neighbors(node):
             edge_set.append((node, n_node))
-            new_reaction_centre = nx.edge_subgraph(G=graph, edges=edge_set)
+
+    new_reaction_centre = nx.edge_subgraph(G=graph, edges=edge_set)
     return find_l_neighborhood_of_rc(
         graph=graph,
         reaction_centre=new_reaction_centre,
