@@ -4,6 +4,8 @@ import cProfile
 import pstats
 import io
 import copy
+from synutility.SynIO.data_type import load_from_pickle
+
 
 # type definitions
 from src.types_used import (
@@ -49,8 +51,7 @@ def all_configurations():
 
 
 def load_data() -> ReactionDataList:
-    with open("data/ITS_graphs.pkl.gz", "rb") as file:
-        data = pickle.load(file)
+    data = load_from_pickle("data/ITS_graphs.pkl.gz")
     return data
 
 
@@ -58,8 +59,7 @@ def run_benchmarking():
     configurations = all_configurations()
 
     try:
-        with open("data_with_reaction_centres.pkl.gz", "rb") as file:
-            refined_data = pickle.load(file)
+        refined_data = load_from_pickle("data/data_with_reaction_centres.pkl.gz")
     except Exception as e:
         print(f"no saved data found: {e}")
         raw_data = load_data()
@@ -85,7 +85,7 @@ def refine_data(raw_data: ReactionDataList) -> ReactionDataList:
 
 def save_refined_data(reactions: ReactionDataList):
     try:
-        with open("data_with_reaction_centres.pkl.gz", "wb") as file:
+        with open("data/data_with_reaction_centres.pkl.gz", "wb") as file:
             pickle.dump(reactions, file)
         return True
     except Exception as e:
@@ -98,8 +98,9 @@ def benchmark_configuration(
 ) -> BenchmarkingResult:
     pr = cProfile.Profile()
     pr.enable()
+    refined_data = copy.deepcopy(refined_data)
 
-    cluster_result = run_clustering(refined_data, config)
+    cluster_result = run_clustering(config=config,refined_data=refined_data)
 
     pr.disable()
     pr.dump_stats(f"{config.invariant}_{config.algorithm}_profile.prof")

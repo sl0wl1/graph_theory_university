@@ -57,5 +57,6 @@ def get_rc_updated(graph):
         graph,
         [(e[0], e[1]) for e in graph.edges(data=True) if e[2]["standard_order"] != 0],
     )
+    reaction_center = nx.Graph(reaction_center)
 
     return reaction_center
