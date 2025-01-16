@@ -50,7 +50,7 @@ def cluster_by_isomorphism_test(list_reactions: List[Dict[Any, Any]]) -> Dict[st
             else:
                 # Checks if isomorphs of the reaction centre already exist in a cluster
                 for key, value in cluster_dict.items():
-                    cluster_centre = get_rc_updated(value[0]["ITS"])
+                    cluster_centre = value[0]["reaction_centre"]
                     if (
                         nx.is_isomorphic(
                             cluster_centre, reaction_centre, node_match=nm_charge
