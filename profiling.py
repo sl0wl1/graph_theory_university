@@ -28,7 +28,7 @@ def _all_invariants():
     return [
         "none",
         "rank",
-        "algebraic_connectivity",
+        # "algebraic_connectivity",
         "edge_count",
         "vertex_count",
         "vertex_degree",
@@ -36,7 +36,7 @@ def _all_invariants():
 
 
 def _all_algorithms():
-    return ["none","isomorphism_test", "weisfeiler_lehmann_nx"]
+    return ["none","isomorphism_test", "weisfeiler_lehmann_nx", "weisfeiler_lehmann_si"]
 
 def _weisfeiler_lehmann_params():
     return {"iterations": 3, "use_node_edge_attr": True}
@@ -55,7 +55,7 @@ def all_configurations():
 
 
 def load_data() -> ReactionDataList:
-    data = load_from_pickle("data/ITS_graphs.pkl.gz")
+    data = load_from_pickle("data/ITS_graphs_reduced.pkl.gz")
     return data
 
 
