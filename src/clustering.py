@@ -2,6 +2,7 @@ from typing import Dict, List, Any
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
 
+import pprint
 
 from src.rc_extract import get_rc_updated
 from src.invariants import (
@@ -13,7 +14,7 @@ from src.invariants import (
 )
 from src.add_combined_node_attributes import combine_charge_element_to_node
 from src.types_used import Config
-from src.weisfeiler_lehman_si import weisfeiler_lehman_isomorphic_test
+from src.weisfeiler_lehman_si import weisfeiler_lehman_isomorphic_test, SharedHashTable
 
 
 def cluster_by_isomorphism_test(list_reactions: List[Dict[Any, Any]]) -> Dict[str, Any]:
@@ -38,9 +39,7 @@ def cluster_by_isomorphism_test(list_reactions: List[Dict[Any, Any]]) -> Dict[st
     # Check if the list of reactions is empty
     if list_reactions:
         for idx, reaction in enumerate(list_reactions):
-            reaction_centre = reaction[
-                "reaction_centre"
-            ]  # change to expect get_rc_updated to have already run
+            reaction_centre = reaction["reaction_centre"]
 
             # Create first entry in dict. For the first reaction there is nothing to compare
             if idx == 0:
@@ -74,16 +73,55 @@ def cluster_by_isomorphism_test(list_reactions: List[Dict[Any, Any]]) -> Dict[st
     return cluster_dict
 
 
-# TODO: not yet implemented
 def cluster_by_weisfeiler_lehman_si(
     list_reactions: List[Dict[Any, Any]],
+    shared_hash_table: Any = SharedHashTable(),
 ) -> Dict[str, Any]:
-    pass
+    """Simple function for clusterting chemical reactions
+
+    Args:
+        list_reactions (List[Dict[Any, Any]]): A list of reactions
+
+    Returns:
+        Dict[str, Any]: Returns a dict. Keys are the number of the cluster. Values are the isomorphic reactions.
+    """
+
+    # Create an empty dict for storing reaction clusters and cluster counter for key naming
+    cluster_dict = {}
+    cluster_counter = 0
+
+    # Check if the list of reactions is empty
+    if list_reactions:
+        for idx, reaction in enumerate(list_reactions):
+            reaction_centre = reaction["reaction_centre"]
+
+            # Create first entry in dict. For the first reaction there is nothing to compare
+            if idx == 0:
+                cluster_dict[f"cluster_{cluster_counter}"] = [list_reactions[idx]]
+                cluster_counter += 1
+
+            else:
+                # Checks if isomorphs of the reaction centre already exist in a cluster
+                for key, value in cluster_dict.items():
+                    cluster_centre = value[0]["reaction_centre"]
+                    if weisfeiler_lehman_isomorphic_test(
+                        reaction_centre, cluster_centre, shared_hash_table
+                    ):
+                        value.append(reaction)
+                        cluster_dict[key] = value
+                        break
+
+                else:
+                    # If no isomorphic reaction centre can be found, create a new entry (cluster)
+                    cluster_dict[f"cluster_{cluster_counter}"] = [reaction]
+                    cluster_counter += 1
+
+    return cluster_dict
 
 
 def cluster_by_weisfeiler_lehman_nx(
     list_reactions: List[Dict[Any, Any]],
-    **kwargs,
+    weisfeiler_lehman_params: Dict[str, Any],
 ) -> Dict[str, Any]:
     """Simple function for clusterting chemical reactions using Weisfeiler-Lehman from NetworkX
 
@@ -95,11 +133,6 @@ def cluster_by_weisfeiler_lehman_nx(
     Returns:
         Dict[str, Any]: Returns a dict. Keys are the number of the cluster. Values are the isomorphic reactions.
     """
-
-    # Create an empty dict for storing reaction clusters and cluster counter for key naming
-    weisfeiler_lehman_params = kwargs.get(
-        "weisfeiler_lehman_params", {"iterations": 3, "use_edge_node_attr": False}
-    )
     iterations = weisfeiler_lehman_params.get("iterations")
     use_edge_node_attr = weisfeiler_lehman_params.get("use_edge_node_attr")
 
@@ -278,7 +311,8 @@ def cluster_after_invariant_grouping(
                 )
             case "weisfeiler_lehmann_nx":
                 temporary_cluster_dict = cluster_by_weisfeiler_lehman_nx(
-                    list_reactions=values, **config.weisfeiler_lehman_params
+                    list_reactions=values,
+                    weisfeiler_lehman_params=config.weisfeiler_lehman_params,
                 )
             case "weisfeiler_lehmann_si":
                 temporary_cluster_dict = cluster_by_weisfeiler_lehman_si(
@@ -288,18 +322,19 @@ def cluster_after_invariant_grouping(
                 raise ValueError(f"Unknown algorithm: {config.algorithm}")
         cluster_after_group_dict[key] = temporary_cluster_dict
 
-    cluster_dict={}
-    
-    for group, clusters in cluster_after_group_dict.items():
-        if isinstance(clusters, dict):
-            for cluster, values in clusters.items():
-                # Adding clusters with their values as separate keys
-                cluster_dict[f"{group}_{cluster}"] = values
-        else:
-            # If clusters is not a dict, add it directly
-            cluster_dict[group] = clusters
+    cluster_dict = {}
+
+    if isinstance(cluster_after_group_dict, dict):
+        for group, clusters in cluster_after_group_dict.items():
+            if isinstance(clusters, dict):
+                for cluster, values in clusters.items():
+                    # Adding clusters with their values as separate keys
+                    cluster_dict[f"{group}_{cluster}"] = values
+            else:
+                # If clusters is not a dict, add it directly
+                cluster_dict[group] = clusters
     else:
-        # If cluster_after_group_dict is not a dict, add it directly
+        # If cluster_after_group_dict is not a dict, copy it directly
         cluster_dict = cluster_after_group_dict
 
     return cluster_dict
@@ -325,7 +360,8 @@ def cluster_without_invariant_grouping(
             cluster_dict = cluster_by_isomorphism_test(list_reactions=list_reactions)
         case "weisfeiler_lehmann_nx":
             cluster_dict = cluster_by_weisfeiler_lehman_nx(
-                list_reactions=list_reactions, **config.weisfeiler_lehman_params
+                list_reactions=list_reactions,
+                weisfeiler_lehman_params=config.weisfeiler_lehman_params,
             )
         case "weisfeiler_lehmann_si":
             cluster_dict = cluster_by_weisfeiler_lehman_si(

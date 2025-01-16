@@ -5,7 +5,7 @@ from typing import Dict, List, Any, Literal
 class Config:
     invariant: Literal["none", "rank", "connectivity", "edge_count", "vertex_count", "vertex_degree"]
     algorithm: Literal["none", "isomorphism_test", "weisfeiler_lehmann_nx", "weisfeiler_lehmann_si"]
-    weisfeiler_lehman_params: Dict[str, Any] = field(default_factory=lambda: {"iterations": 3, "use_node_edge_attr": False})
+    weisfeiler_lehman_params: Dict[str, Any]
 
     def perform_benchmark(self) -> bool:
         return not (self.algorithm == "none" and self.invariant == "none")
