@@ -166,7 +166,7 @@ def group_after_invariant(
     """
 
     invariants = [
-        "vertex_counts",
+        "vertex_count",
         "edge_count",
         "vertex_degree",
         "algebraic_connectivity",
@@ -288,7 +288,13 @@ def cluster_after_invariant_grouping(
                 raise ValueError(f"Unknown algorithm: {config.algorithm}")
         cluster_after_group_dict[key] = temporary_cluster_dict
 
-    return cluster_after_group_dict
+    cluster_dict={}
+    for group, clusters in cluster_after_group_dict.items():
+        for cluster, values in clusters.items():
+            # Adding clusters with their values as separate keys
+            cluster_dict[f"{group}_{cluster}"] = values
+
+    return cluster_dict
 
 
 def cluster_without_invariant_grouping(

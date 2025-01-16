@@ -27,15 +27,15 @@ def _all_invariants():
     return [
         "none",
         "rank",
-        "algebraic_connectivity",
+        # "algebraic_connectivity",
         "edge_count",
-        # "vertex_count",
-        # "vertex_degree",
+        "vertex_count",
+        "vertex_degree",
     ]
 
 
 def _all_algorithms():
-    return ["none", "isomorphism_test", "weisfeiler_lehmann_nx", "weisfeiler_lehmann_si"]
+    return ["none", "isomorphism_test", "weisfeiler_lehmann_nx"]
 
 
 def all_configurations():
@@ -51,7 +51,7 @@ def all_configurations():
 
 
 def load_data() -> ReactionDataList:
-    data = load_from_pickle("data/ITS_graphs_reduced.pkl.gz")
+    data = load_from_pickle("data/ITS_graphs.pkl.gz")
     return data
 
 
@@ -104,12 +104,17 @@ def benchmark_configuration(
     cluster_result = run_clustering(config=config,refined_data=refined_data)
 
     pr.disable()
-    pr.dump_stats(f"{config.invariant}_{config.algorithm}_profile.prof")
+    pr.dump_stats(f"data/profiles/{config.invariant}_{config.algorithm}_profile.prof")
+    stats = pstats.Stats(pr)
+
+    # Get total time
+    total_time = stats.total_tt  # This gives you the total time in seconds
+
 
     benchmark_result = {
         "clusters": cluster_result,
         "configuration": config,
-        "time": sum(stat.totaltime for stat in pr.getstats()),
+        "time": total_time,
         "cluster_count": len(cluster_result),
     }
     
@@ -151,7 +156,7 @@ def save_result(benchmark_result: BenchmarkingResult):
     try:
         config = benchmark_result["configuration"]
         namestr = f"{config.invariant}_{config.algorithm}"
-        with open(f"{namestr}_results.pkl.gz", "wb") as file:
+        with open(f"data/results/{namestr}_results.pkl.gz", "wb") as file:
             pickle.dump(benchmark_result, file)
 
         return True
