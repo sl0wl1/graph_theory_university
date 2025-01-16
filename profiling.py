@@ -20,8 +20,9 @@ from src.rc_extract import get_rc_updated
 from src.clustering import (
     cluster_without_invariant_grouping,
     cluster_after_invariant_grouping,
-    group_after_invariant
+    group_after_invariant,
 )
+
 
 def _all_invariants():
     return [
@@ -35,7 +36,7 @@ def _all_invariants():
 
 
 def _all_algorithms():
-    return ["none", "isomorphism_test", "weisfeiler_lehmann_nx"]
+    return ["none","isomorphism_test", "weisfeiler_lehmann_nx"]
 
 
 def all_configurations():
@@ -51,7 +52,7 @@ def all_configurations():
 
 
 def load_data() -> ReactionDataList:
-    data = load_from_pickle("data/ITS_graphs.pkl.gz")
+    data = load_from_pickle("data/ITS_largerdataset.pkl.gz")
     return data
 
 
@@ -65,8 +66,6 @@ def run_benchmarking():
         raw_data = load_data()
         refined_data = refine_data(raw_data)
         save_refined_data(refined_data)
-    
-    
 
     for config in configurations:
         if config.perform_benchmark():
@@ -97,11 +96,11 @@ def save_refined_data(reactions: ReactionDataList):
 def benchmark_configuration(
     config: Config, refined_data: ReactionDataList
 ) -> BenchmarkingResult:
-    
+
     refined_data = copy.deepcopy(refined_data)
     pr = cProfile.Profile()
     pr.enable()
-    cluster_result = run_clustering(config=config,refined_data=refined_data)
+    cluster_result = run_clustering(config=config, refined_data=refined_data)
 
     pr.disable()
     pr.dump_stats(f"data/profiles/{config.invariant}_{config.algorithm}_profile.prof")
@@ -110,18 +109,18 @@ def benchmark_configuration(
     # Get total time
     total_time = stats.total_tt  # This gives you the total time in seconds
 
-
     benchmark_result = {
         "clusters": cluster_result,
         "configuration": config,
         "time": total_time,
         "cluster_count": len(cluster_result),
     }
-    
-    print(f"Config: {config}, Cluster Count: {benchmark_result['cluster_count']}, Time: {benchmark_result['time']}")
+
+    print(
+        f"Config: {config}, Cluster Count: {benchmark_result['cluster_count']}, Time: {benchmark_result['time']}"
+    )
     print("\n\n")
     return benchmark_result
-
 
 
 def run_clustering(
@@ -148,7 +147,6 @@ def run_clustering(
             )
         case _:
             raise ValueError(f"Invalid config: {config}")
-        
     return cluster_result
 
 
@@ -163,6 +161,7 @@ def save_result(benchmark_result: BenchmarkingResult):
     except Exception as e:
         print(f"Error saving benchmarking results: {e}")
         return False
+
 
 if __name__ == "__main__":
     run_benchmarking()

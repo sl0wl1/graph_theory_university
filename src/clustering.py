@@ -289,10 +289,18 @@ def cluster_after_invariant_grouping(
         cluster_after_group_dict[key] = temporary_cluster_dict
 
     cluster_dict={}
+    
     for group, clusters in cluster_after_group_dict.items():
-        for cluster, values in clusters.items():
-            # Adding clusters with their values as separate keys
-            cluster_dict[f"{group}_{cluster}"] = values
+        if isinstance(clusters, dict):
+            for cluster, values in clusters.items():
+                # Adding clusters with their values as separate keys
+                cluster_dict[f"{group}_{cluster}"] = values
+        else:
+            # If clusters is not a dict, add it directly
+            cluster_dict[group] = clusters
+    else:
+        # If cluster_after_group_dict is not a dict, add it directly
+        cluster_dict = cluster_after_group_dict
 
     return cluster_dict
 
