@@ -8,7 +8,7 @@ class Config:
     weisfeiler_lehman_params: Dict[str, Any] = field(default_factory=lambda: {"iterations": 3, "use_node_edge_attr": False})
 
     def perform_benchmark(self) -> bool:
-        return self.algorithm != "none" and self.invariant != "none"
+        return not (self.algorithm == "none" and self.invariant == "none")
         
 
 # TYPE DEFINITIONS 
