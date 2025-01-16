@@ -28,7 +28,7 @@ def _all_invariants():
     return [
         "none",
         "rank",
-        # "algebraic_connectivity",
+        "algebraic_connectivity",
         "edge_count",
         "vertex_count",
         "vertex_degree",
@@ -38,6 +38,9 @@ def _all_invariants():
 def _all_algorithms():
     return ["none","isomorphism_test", "weisfeiler_lehmann_nx"]
 
+def _weisfeiler_lehmann_params():
+    return {"iterations": 3, "use_node_edge_attr": True}
+
 
 def all_configurations():
     invariants = _all_invariants()
@@ -45,14 +48,14 @@ def all_configurations():
 
     all_combinations = product(invariants, algorithms)
     configurations = [
-        Config(invariant, algorithm) for invariant, algorithm in all_combinations
+        Config(invariant, algorithm, _weisfeiler_lehmann_params()) for invariant, algorithm in all_combinations
     ]
 
     return configurations
 
 
 def load_data() -> ReactionDataList:
-    data = load_from_pickle("data/ITS_largerdataset.pkl.gz")
+    data = load_from_pickle("data/ITS_graphs.pkl.gz")
     return data
 
 
@@ -109,8 +112,9 @@ def benchmark_configuration(
     # Get total time
     total_time = stats.total_tt  # This gives you the total time in seconds
 
+
     benchmark_result = {
-        "clusters": cluster_result,
+        "clusters": trim_cluster_result(cluster_result),
         "configuration": config,
         "time": total_time,
         "cluster_count": len(cluster_result),
@@ -161,6 +165,23 @@ def save_result(benchmark_result: BenchmarkingResult):
     except Exception as e:
         print(f"Error saving benchmarking results: {e}")
         return False
+    
+def trim_cluster_result(cluster_result: ClusterDict) -> ReactionDataList:
+    """
+    Removes 'reaction_centre' and 'ITS' keys from each reaction in the list.
+    """
+    return {
+        cluster_name: trim_reaction_data(cluster) for cluster_name, cluster in cluster_result.items()
+    }
+
+def trim_reaction_data(list_reactions: ReactionDataList) -> ReactionDataList:
+    """
+    Removes 'reaction_centre' and 'ITS' keys from each reaction in the list.
+    """
+    return [
+        {key: value for key, value in reaction.items() if key not in ["reaction_centre", "ITS"]}
+        for reaction in list_reactions
+    ]
 
 
 if __name__ == "__main__":
