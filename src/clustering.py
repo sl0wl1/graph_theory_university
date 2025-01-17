@@ -99,7 +99,7 @@ def cluster_by_isomorphism_test_neighborhood(
     if list_reactions:
         for idx, reaction in enumerate(list_reactions):
             reaction_centre = find_l_neighborhood_of_rc(
-                reaction["ILS"], reaction["reaction_centre"], size
+                reaction["ITS"], reaction["reaction_centre"], size
             )
 
             # Create first entry in dict. For the first reaction there is nothing to compare
@@ -112,7 +112,7 @@ def cluster_by_isomorphism_test_neighborhood(
                 for key, value in cluster_dict.items():
                     repr_reaction = value[0]
                     cluster_centre = find_l_neighborhood_of_rc(
-                        repr_reaction["ILS"], repr_reaction["reaction_centre"], size
+                        repr_reaction["ITS"], repr_reaction["reaction_centre"], size
                     )
                     if (
                         nx.is_isomorphic(
@@ -429,9 +429,9 @@ def cluster_without_invariant_grouping(
             cluster_dict = cluster_by_weisfeiler_lehman_si(
                 list_reactions=list_reactions
             )
-        case "neighborhood":
+        case "neighbourhood":
             cluster_dict = cluster_by_isomorphism_test_neighborhood(
-                list_reactions=list_reactions, size=config.neighborhood_size
+                list_reactions=list_reactions, size=config.neighbourhood_size
             )
 
     return cluster_dict
