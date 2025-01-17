@@ -104,3 +104,13 @@ def rank_invariant(
     )
 
     return group_centre_invariant, reaction_centre_invariant
+
+def histogram_invariant_check(histogram_1, histogram_2):
+    list_1 = list(histogram_1.values())
+    list_1.sort()
+    list_2 = list(histogram_2.values())
+    list_2.sort()
+    if list_1 == list_2:
+        return True
+    else:
+        return False

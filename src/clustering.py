@@ -10,8 +10,10 @@ from src.invariants import (
     vertex_count_invariant,
     algebraic_connectivity_invariant,
     rank_invariant,
+    histogram_invariant_check
 )
 from src.add_combined_node_attributes import combine_charge_element_to_node
+from src.weisfeiler_lehman_si import weisfeiler_lehman_isomorhpic_test, SharedHashTable
 
 
 def cluster_reactions(list_reactions: List[Dict[Any, Any]]) -> Dict[str, Any]:
@@ -115,7 +117,7 @@ def group_after_invariant(
                 # Checks if invariants of the reaction centre already exist in a group
                 for key, value in group_dict.items():
                     group_centre = get_rc_updated(value[0]["ITS"])
-
+                    
                     # TODO Maybe this could be optimized... and I do not know if it is correct -.-'
                     # Only need to be checked once
                     # Using switch cases for invariants
@@ -169,6 +171,9 @@ def group_after_invariant(
 
                             # group_centre_invariant = np.linalg.eigvals(group_centre)
                             # reaction_centre_invariant = np.linalg.eigvals(reaction_centre)
+            
+                            
+
 
                     if reaction_centre_invariant == group_centre_invariant:
                         value.append(reaction)
@@ -273,3 +278,117 @@ def cluster_weisfeiler_lehman_nx(
                     cluster_counter += 1
 
     return cluster_dict
+
+
+def cluster_weisfeiler_lehman_si(
+    list_reactions: List[Dict[Any, Any]],
+    extract_reaction_centre: bool = True,
+    reset: bool = True
+    
+    
+) -> Dict[str, Any]:
+    """Simple function for clusterting chemical reactions using Weisfeiler-Lehman from NetworkX
+
+    Args:
+        list_reactions (List[Dict[Any, Any]]): A list of reactions
+        iterations (int): Number of neighbor aggregations to perform. Defaults to 3
+        use_edge_node_attr (bool): Set to True for using edge and node attributes (order, charge, element). Defaults to False.
+
+    Returns:
+        Dict[str, Any]: Returns a dict. Keys are the number of the cluster. Values are the isomorphic reactions.
+    """
+
+    # Create an empty dict for storing reaction clusters and cluster counter for key naming
+    cluster_dict = {}
+    cluster_counter = 0
+
+    # Check if the list of reactions is empty
+    if list_reactions:
+        for idx, reaction in enumerate(list_reactions):
+            reaction_centre = get_rc_updated(reaction["ITS"])
+
+
+            # Create first entry in dict. For the first reaction there is nothing to compare
+            if idx == 0:
+                cluster_dict[f"cluster_{cluster_counter}"] = [list_reactions[idx]]
+                cluster_counter += 1
+
+            else:
+                # Checks if isomorphs of the reaction centre already exist in a cluster
+                for key, value in cluster_dict.items():
+                    cluster_centre = get_rc_updated(value[0]["ITS"])
+
+                    # TODO Maybe this could be optimized... and I do not know if it is correct -.-'
+                    # Only need to be checked once
+                    
+                    shared_hash_table = SharedHashTable()
+                    if weisfeiler_lehman_isomorhpic_test(cluster_centre, reaction_centre, shared_hash_table, extract_reaction_centre=extract_reaction_centre, reset=reset):
+                        
+                        value.append(reaction)
+                        cluster_dict[key] = value
+                        break
+
+                else:
+                    # If no isomorphic reaction centre can be found, create a new entry (cluster)
+                    cluster_dict[f"cluster_{cluster_counter}"] = [reaction]
+                    cluster_counter += 1
+
+    return cluster_dict
+
+
+
+def cluster_histograms(
+    list_reactions: List[Dict[Any, Any]],   
+    
+) -> Dict[str, Any]:
+    """Simple function for clusterting chemical reactions using Weisfeiler-Lehman from NetworkX
+
+    Args:
+        list_reactions (List[Dict[Any, Any]]): A list of reactions
+        iterations (int): Number of neighbor aggregations to perform. Defaults to 3
+        use_edge_node_attr (bool): Set to True for using edge and node attributes (order, charge, element). Defaults to False.
+
+    Returns:
+        Dict[str, Any]: Returns a dict. Keys are the number of the cluster. Values are the isomorphic reactions.
+    """
+
+    # Create an empty dict for storing reaction clusters and cluster counter for key naming
+    cluster_dict = {}
+    cluster_counter = 0
+
+    # Check if the list of reactions is empty
+    if list_reactions:
+        for idx, reaction in enumerate(list_reactions):
+            reaction_histogram = reaction["histogram"]
+
+
+            # Create first entry in dict. For the first reaction there is nothing to compare
+            if idx == 0:
+                cluster_dict[f"cluster_{cluster_counter}"] = [list_reactions[idx]]
+                cluster_counter += 1
+
+            else:
+                # Checks if isomorphs of the reaction centre already exist in a cluster
+                for key, value in cluster_dict.items():
+                    cluster_histogram = value[0]["histogram"]
+
+                    # TODO Maybe this could be optimized... and I do not know if it is correct -.-'
+                    # Only need to be checked once
+
+                    if histogram_invariant_check(cluster_histogram, reaction_histogram):
+                        
+                        value.append(reaction)
+                        cluster_dict[key] = value
+                        break
+
+                else:
+                    # If no isomorphic reaction centre can be found, create a new entry (cluster)
+                    cluster_dict[f"cluster_{cluster_counter}"] = [reaction]
+                    cluster_counter += 1
+
+    return cluster_dict
+
+
+    
+    
+
