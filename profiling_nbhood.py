@@ -38,10 +38,13 @@ def _all_invariants():
 def _all_algorithms():
     return [
         # "none",
-        "isomorphism_test",
+        "neighbourhood",
         # "weisfeiler_lehmann_nx",
         # "weisfeiler_lehmann_si",
     ]
+
+def _all_neighbourhoud_sizes():
+    return [0, 1, 2]
 
 
 def _weisfeiler_lehmann_params():
@@ -52,17 +55,17 @@ def all_configurations():
     invariants = _all_invariants()
     algorithms = _all_algorithms()
 
-    all_combinations = product(invariants, algorithms)
+    all_combinations = product(invariants, algorithms, _all_neighbourhoud_sizes())
     configurations = [
-        Config(invariant, algorithm, _weisfeiler_lehmann_params())
-        for invariant, algorithm in all_combinations
+        Config(invariant, algorithm, _weisfeiler_lehmann_params(), size)
+        for invariant, algorithm, size in all_combinations
     ]
 
     return configurations
 
 
 def load_data() -> ReactionDataList:
-    data = load_from_pickle("data/ITS_graphs_reduced.pkl.gz")
+    data = load_from_pickle("data/ITS_graphs.pkl.gz")
     return data
 
 

@@ -54,7 +54,7 @@ def all_configurations():
 
     all_combinations = product(invariants, algorithms)
     configurations = [
-        Config(invariant, algorithm, _weisfeiler_lehmann_params())
+        Config(invariant, algorithm, _weisfeiler_lehmann_params(), 0)
         for invariant, algorithm in all_combinations
     ]
 
@@ -62,7 +62,7 @@ def all_configurations():
 
 
 def load_data() -> ReactionDataList:
-    data = load_from_pickle("data/ITS_graphs_reduced.pkl.gz")
+    data = load_from_pickle("data/ITS_largerdataset.pkl.gz")
     return data
 
 
@@ -70,7 +70,7 @@ def run_benchmarking():
     configurations = all_configurations()
 
     try:
-        refined_data = load_from_pickle("data/data_with_reaction_centres.pkl.gz")
+        refined_data = load_from_pickle("data/data_with_reaction_centres_large.pkl.gz")
     except Exception as e:
         print(f"no saved data found: {e}")
         raw_data = load_data()
@@ -95,7 +95,7 @@ def refine_data(raw_data: ReactionDataList) -> ReactionDataList:
 
 def save_refined_data(reactions: ReactionDataList):
     try:
-        with open("data/data_with_reaction_centres.pkl.gz", "wb") as file:
+        with open("data/data_with_reaction_centres_large.pkl.gz", "wb") as file:
             pickle.dump(reactions, file)
         return True
     except Exception as e:
