@@ -4,8 +4,9 @@ from typing import Dict, List, Any, Literal
 @dataclass
 class Config:
     invariant: Literal["none", "rank", "algebraic_connectivity", "edge_count", "vertex_count", "vertex_degree"]
-    algorithm: Literal["none", "isomorphism_test", "weisfeiler_lehmann_nx", "weisfeiler_lehmann_si"]
+    algorithm: Literal["none", "isomorphism_test", "weisfeiler_lehmann_nx", "weisfeiler_lehmann_si", "neighbourhood"]
     weisfeiler_lehman_params: Dict[str, Any]
+    neighbourhood_size: int = 3,
 
     def perform_benchmark(self) -> bool:
         if self.invariant == "algebraic_connectivity":

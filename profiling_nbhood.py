@@ -27,19 +27,19 @@ from src.clustering import (
 def _all_invariants():
     return [
         "none",
-        "rank",
+        # "rank",
         # "algebraic_connectivity",
-        "edge_count",
+        # "edge_count",
         # "vertex_count",
-        "vertex_degree",
+        # "vertex_degree",
     ]
 
 
 def _all_algorithms():
     return [
-        "none",
+        # "none",
         "isomorphism_test",
-        "weisfeiler_lehmann_nx",
+        # "weisfeiler_lehmann_nx",
         # "weisfeiler_lehmann_si",
     ]
 

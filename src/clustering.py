@@ -12,6 +12,7 @@ from src.invariants import (
     algebraic_connectivity_invariant,
     rank_invariant,
 )
+from src.l_neighborhood import find_l_neighborhood_of_rc
 from src.add_combined_node_attributes import combine_charge_element_to_node
 from src.types_used import Config
 from src.weisfeiler_lehman_si import weisfeiler_lehman_isomorphic_test, SharedHashTable
@@ -50,6 +51,69 @@ def cluster_by_isomorphism_test(list_reactions: List[Dict[Any, Any]]) -> Dict[st
                 # Checks if isomorphs of the reaction centre already exist in a cluster
                 for key, value in cluster_dict.items():
                     cluster_centre = value[0]["reaction_centre"]
+                    if (
+                        nx.is_isomorphic(
+                            cluster_centre, reaction_centre, node_match=nm_charge
+                        )
+                        and nx.is_isomorphic(
+                            cluster_centre, reaction_centre, node_match=nm_element
+                        )
+                        and nx.is_isomorphic(
+                            cluster_centre, reaction_centre, edge_match=em_order
+                        )
+                    ):
+                        value.append(reaction)
+                        cluster_dict[key] = value
+                        break
+
+                else:
+                    # If no isomorphic reaction centre can be found, create a new entry (cluster)
+                    cluster_dict[f"cluster_{cluster_counter}"] = [reaction]
+                    cluster_counter += 1
+
+    return cluster_dict
+
+
+def cluster_by_isomorphism_test_neighborhood(
+    list_reactions: List[Dict[Any, Any]], size=3
+) -> Dict[str, Any]:
+    """Simple function for clusterting chemical reactions
+
+    Args:
+        list_reactions (List[Dict[Any, Any]]): A list of reactions
+
+    Returns:
+        Dict[str, Any]: Returns a dict. Keys are the number of the cluster. Values are the isomorphic reactions.
+    """
+
+    # Create callables for is_isomorphic check
+    nm_charge = iso.numerical_node_match("charge", 0)
+    nm_element = iso.categorical_node_match("element", "C")
+    em_order = iso.categorical_edge_match("order", 0)
+
+    # Create an empty dict for storing reaction clusters and cluster counter for key naming
+    cluster_dict = {}
+    cluster_counter = 0
+
+    # Check if the list of reactions is empty
+    if list_reactions:
+        for idx, reaction in enumerate(list_reactions):
+            reaction_centre = find_l_neighborhood_of_rc(
+                reaction["ILS"], reaction["reaction_centre"], size
+            )
+
+            # Create first entry in dict. For the first reaction there is nothing to compare
+            if idx == 0:
+                cluster_dict[f"cluster_{cluster_counter}"] = [list_reactions[idx]]
+                cluster_counter += 1
+
+            else:
+                # Checks if isomorphs of the reaction centre already exist in a cluster
+                for key, value in cluster_dict.items():
+                    repr_reaction = value[0]
+                    cluster_centre = find_l_neighborhood_of_rc(
+                        repr_reaction["ILS"], repr_reaction["reaction_centre"], size
+                    )
                     if (
                         nx.is_isomorphic(
                             cluster_centre, reaction_centre, node_match=nm_charge
@@ -254,11 +318,9 @@ def group_after_invariant(
                             (
                                 group_centre_invariant,
                                 reaction_centre_invariant,
-                            ) = (  # invariant doesn't exactly fit here (should be connectivity)
-                                algebraic_connectivity_invariant(
-                                    group_centre=group_centre,
-                                    reaction_centre=reaction_centre,
-                                )
+                            ) = algebraic_connectivity_invariant(  # invariant doesn't exactly fit here (should be connectivity)
+                                group_centre=group_centre,
+                                reaction_centre=reaction_centre,
                             )
                         case "rank":
                             group_centre_invariant, reaction_centre_invariant = (
@@ -366,6 +428,10 @@ def cluster_without_invariant_grouping(
         case "weisfeiler_lehmann_si":
             cluster_dict = cluster_by_weisfeiler_lehman_si(
                 list_reactions=list_reactions
+            )
+        case "neighborhood":
+            cluster_dict = cluster_by_isomorphism_test_neighborhood(
+                list_reactions=list_reactions, size=config.neighborhood_size
             )
 
     return cluster_dict
