@@ -10,7 +10,7 @@ from src.invariants import (
     vertex_count_invariant,
     algebraic_connectivity_invariant,
     rank_invariant,
-    histogram_invariant_check
+    histogram_invariant_check,
 )
 from src.add_combined_node_attributes import combine_charge_element_to_node
 from src.weisfeiler_lehman_si import weisfeiler_lehman_isomorhpic_test, SharedHashTable
@@ -117,7 +117,7 @@ def group_after_invariant(
                 # Checks if invariants of the reaction centre already exist in a group
                 for key, value in group_dict.items():
                     group_centre = get_rc_updated(value[0]["ITS"])
-                    
+
                     # TODO Maybe this could be optimized... and I do not know if it is correct -.-'
                     # Only need to be checked once
                     # Using switch cases for invariants
@@ -171,9 +171,6 @@ def group_after_invariant(
 
                             # group_centre_invariant = np.linalg.eigvals(group_centre)
                             # reaction_centre_invariant = np.linalg.eigvals(reaction_centre)
-            
-                            
-
 
                     if reaction_centre_invariant == group_centre_invariant:
                         value.append(reaction)
@@ -237,20 +234,31 @@ def cluster_weisfeiler_lehman_nx(
             reaction_centre = get_rc_updated(reaction["ITS"])
 
             if use_edge_node_attr:
-                combine_charge_element_to_node(reaction_centre)
-                reaction_centre_hash = nx.weisfeiler_lehman_graph_hash(
-                    reaction_centre,
-                    iterations=iterations,
-                    edge_attr="order",
-                    node_attr="element_charge",
-                )
-                reaction_centre.graph["reaction_centre_wl_hash"] = reaction_centre_hash
+                if (
+                    reaction_centre.graph.get(
+                        "reaction_centre_wl_hash_node_edge_attributes"
+                    )
+                    is None
+                ):
+                    combine_charge_element_to_node(reaction_centre)
+                    reaction_centre_hash = nx.weisfeiler_lehman_graph_hash(
+                        reaction_centre,
+                        iterations=iterations,
+                        edge_attr="order",
+                        node_attr="element_charge",
+                    )
+                    reaction_centre.graph[
+                        "reaction_centre_wl_hash_node_edge_attributes"
+                    ] = reaction_centre_hash
 
             else:
-                reaction_centre_hash = nx.weisfeiler_lehman_graph_hash(
-                    reaction_centre, iterations=iterations
-                )
-                reaction_centre.graph["reaction_centre_wl_hash"] = reaction_centre_hash
+                if reaction_centre.graph.get("reaction_centre_wl_hash_vanilla") is None:
+                    reaction_centre_hash = nx.weisfeiler_lehman_graph_hash(
+                        reaction_centre, iterations=iterations
+                    )
+                    reaction_centre.graph["reaction_centre_wl_hash_vanilla"] = (
+                        reaction_centre_hash
+                    )
 
             # Create first entry in dict. For the first reaction there is nothing to compare
             if idx == 0:
@@ -262,12 +270,26 @@ def cluster_weisfeiler_lehman_nx(
                 for key, value in cluster_dict.items():
                     cluster_centre = get_rc_updated(value[0]["ITS"])
 
+                    cluster_centre_hash = (
+                        cluster_centre.graph.get(
+                            "reaction_centre_wl_hash_node_edge_attributes"
+                        )
+                        if use_edge_node_attr
+                        else cluster_centre.graph.get("reaction_centre_wl_hash_vanilla")
+                    )
+                    reaction_centre_hash = (
+                        reaction_centre.graph.get(
+                            "reaction_centre_wl_hash_node_edge_attributes"
+                        )
+                        if use_edge_node_attr
+                        else reaction_centre.graph.get(
+                            "reaction_centre_wl_hash_vanilla"
+                        )
+                    )
+
                     # TODO Maybe this could be optimized... and I do not know if it is correct -.-'
                     # Only need to be checked once
-                    if (
-                        cluster_centre.graph["reaction_centre_wl_hash"]
-                        == reaction_centre.graph["reaction_centre_wl_hash"]
-                    ):
+                    if cluster_centre_hash == reaction_centre_hash:
                         value.append(reaction)
                         cluster_dict[key] = value
                         break
@@ -283,9 +305,7 @@ def cluster_weisfeiler_lehman_nx(
 def cluster_weisfeiler_lehman_si(
     list_reactions: List[Dict[Any, Any]],
     extract_reaction_centre: bool = True,
-    reset: bool = True
-    
-    
+    reset: bool = True,
 ) -> Dict[str, Any]:
     """Simple function for clusterting chemical reactions using Weisfeiler-Lehman from NetworkX
 
@@ -307,7 +327,6 @@ def cluster_weisfeiler_lehman_si(
         for idx, reaction in enumerate(list_reactions):
             reaction_centre = get_rc_updated(reaction["ITS"])
 
-
             # Create first entry in dict. For the first reaction there is nothing to compare
             if idx == 0:
                 cluster_dict[f"cluster_{cluster_counter}"] = [list_reactions[idx]]
@@ -320,10 +339,15 @@ def cluster_weisfeiler_lehman_si(
 
                     # TODO Maybe this could be optimized... and I do not know if it is correct -.-'
                     # Only need to be checked once
-                    
+
                     shared_hash_table = SharedHashTable()
-                    if weisfeiler_lehman_isomorhpic_test(cluster_centre, reaction_centre, shared_hash_table, extract_reaction_centre=extract_reaction_centre, reset=reset):
-                        
+                    if weisfeiler_lehman_isomorhpic_test(
+                        cluster_centre,
+                        reaction_centre,
+                        shared_hash_table,
+                        extract_reaction_centre=extract_reaction_centre,
+                        reset=reset,
+                    ):
                         value.append(reaction)
                         cluster_dict[key] = value
                         break
@@ -336,10 +360,8 @@ def cluster_weisfeiler_lehman_si(
     return cluster_dict
 
 
-
 def cluster_histograms(
-    list_reactions: List[Dict[Any, Any]],   
-    
+    list_reactions: List[Dict[Any, Any]],
 ) -> Dict[str, Any]:
     """Simple function for clusterting chemical reactions using Weisfeiler-Lehman from NetworkX
 
@@ -361,7 +383,6 @@ def cluster_histograms(
         for idx, reaction in enumerate(list_reactions):
             reaction_histogram = reaction["histogram"]
 
-
             # Create first entry in dict. For the first reaction there is nothing to compare
             if idx == 0:
                 cluster_dict[f"cluster_{cluster_counter}"] = [list_reactions[idx]]
@@ -376,7 +397,6 @@ def cluster_histograms(
                     # Only need to be checked once
 
                     if histogram_invariant_check(cluster_histogram, reaction_histogram):
-                        
                         value.append(reaction)
                         cluster_dict[key] = value
                         break
@@ -387,8 +407,3 @@ def cluster_histograms(
                     cluster_counter += 1
 
     return cluster_dict
-
-
-    
-    
-

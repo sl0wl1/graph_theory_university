@@ -93,17 +93,19 @@ def weisfeiler_lehman_isomorhpic_test(
     temporary_histogram_2: Dict[int, int] = {}
 
     for i in range(len(graph_1.nodes) + 1):
-        
         # Initial step
         if i == 0:
-            
-            temporary_compressed_labels_1, temporary_histogram_1 = weisfeiler_lehman_step(
-                graph=graph_1, shared_hash_table=shared_hash_table, reset=reset
+            temporary_compressed_labels_1, temporary_histogram_1 = (
+                weisfeiler_lehman_step(
+                    graph=graph_1, shared_hash_table=shared_hash_table, reset=reset
+                )
             )
-            temporary_compressed_labels_2, temporary_histogram_2 = weisfeiler_lehman_step(
-                graph=graph_2, shared_hash_table=shared_hash_table, reset=reset
+            temporary_compressed_labels_2, temporary_histogram_2 = (
+                weisfeiler_lehman_step(
+                    graph=graph_2, shared_hash_table=shared_hash_table, reset=reset
+                )
             )
-        
+
         if i >= 1:
             last_histogram_1_values = list(temporary_histogram_1.values())
             last_histogram_2_values = list(temporary_histogram_2.values())

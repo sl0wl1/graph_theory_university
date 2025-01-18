@@ -105,6 +105,7 @@ def rank_invariant(
 
     return group_centre_invariant, reaction_centre_invariant
 
+
 def histogram_invariant_check(histogram_1, histogram_2):
     list_1 = list(histogram_1.values())
     list_1.sort()
