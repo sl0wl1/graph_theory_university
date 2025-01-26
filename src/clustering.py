@@ -11,6 +11,7 @@ from src.invariants import (
     algebraic_connectivity_invariant,
     rank_invariant,
     histogram_invariant_check,
+    compressed_labels_invariant_check,
 )
 from src.add_combined_node_attributes import combine_charge_element_to_node
 from src.weisfeiler_lehman_si import weisfeiler_lehman_isomorhpic_test, SharedHashTable
@@ -363,12 +364,10 @@ def cluster_weisfeiler_lehman_si(
 def cluster_histograms(
     list_reactions: List[Dict[Any, Any]],
 ) -> Dict[str, Any]:
-    """Simple function for clusterting chemical reactions using Weisfeiler-Lehman from NetworkX
-
+    """Simple function for clusterting chemical reactions using Weisfeiler-Lehman histograms
     Args:
         list_reactions (List[Dict[Any, Any]]): A list of reactions
         iterations (int): Number of neighbor aggregations to perform. Defaults to 3
-        use_edge_node_attr (bool): Set to True for using edge and node attributes (order, charge, element). Defaults to False.
 
     Returns:
         Dict[str, Any]: Returns a dict. Keys are the number of the cluster. Values are the isomorphic reactions.
@@ -397,6 +396,57 @@ def cluster_histograms(
                     # Only need to be checked once
 
                     if histogram_invariant_check(cluster_histogram, reaction_histogram):
+                        value.append(reaction)
+                        cluster_dict[key] = value
+                        break
+
+                else:
+                    # If no isomorphic reaction centre can be found, create a new entry (cluster)
+                    cluster_dict[f"cluster_{cluster_counter}"] = [reaction]
+                    cluster_counter += 1
+
+    return cluster_dict
+
+
+def cluster_compressed_labels(
+    list_reactions: List[Dict[Any, Any]],
+) -> Dict[str, Any]:
+    """Simple function for clusterting chemical reactions using Weisfeiler-Lehmans compressed labels
+
+    Args:
+        list_reactions (List[Dict[Any, Any]]): A list of reactions
+        iterations (int): Number of neighbor aggregations to perform. Defaults to 3
+
+
+    Returns:
+        Dict[str, Any]: Returns a dict. Keys are the number of the cluster. Values are the isomorphic reactions.
+    """
+
+    # Create an empty dict for storing reaction clusters and cluster counter for key naming
+    cluster_dict = {}
+    cluster_counter = 0
+
+    # Check if the list of reactions is empty
+    if list_reactions:
+        for idx, reaction in enumerate(list_reactions):
+            reaction_histogram = reaction["compressed_labels"]
+
+            # Create first entry in dict. For the first reaction there is nothing to compare
+            if idx == 0:
+                cluster_dict[f"cluster_{cluster_counter}"] = [list_reactions[idx]]
+                cluster_counter += 1
+
+            else:
+                # Checks if isomorphs of the reaction centre already exist in a cluster
+                for key, value in cluster_dict.items():
+                    cluster_histogram = value[0]["compressed_labels"]
+
+                    # TODO Maybe this could be optimized... and I do not know if it is correct -.-'
+                    # Only need to be checked once
+
+                    if compressed_labels_invariant_check(
+                        cluster_histogram, reaction_histogram
+                    ):
                         value.append(reaction)
                         cluster_dict[key] = value
                         break

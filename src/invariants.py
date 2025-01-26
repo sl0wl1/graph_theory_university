@@ -115,3 +115,10 @@ def histogram_invariant_check(histogram_1, histogram_2):
         return True
     else:
         return False
+
+
+def compressed_labels_invariant_check(compressed_label_1, compressed_label_2):
+    if compressed_label_1 == compressed_label_2:
+        return True
+    else:
+        return False
